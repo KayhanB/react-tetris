@@ -78,7 +78,8 @@ export default class Tetris extends Component {
       if ((this.activeBoxes[i] + 1) % this.boxCountInOneRow === 0 && arrow === "ArrowRight") return false;
       if (this.landedBoxes.includes(this.activeBoxes[i] + 1)) return false;
       if (this.landedBoxes.includes(this.activeBoxes[i] - 1)) return false;
-      this.touchCheck();
+      if (this.landedBoxes.includes(this.activeBoxes[i] + this.boxCountInOneRow - 1)) return false;
+      if (this.landedBoxes.includes(this.activeBoxes[i] + this.boxCountInOneRow + 1)) return false;
     }
     return true;
   };
