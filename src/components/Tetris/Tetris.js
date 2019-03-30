@@ -49,7 +49,8 @@ export default class Tetris extends Component {
     // Oyun döngüsü
     this.gameLoop = setInterval(() => {
       if (this.activeBoxes.length === 0) this.generateActiveBoxes();
-      this.updateBoxes();
+      this.touchCheck();
+      this.update();
       this.forceUpdate();
     }, this.FPS);
   };
@@ -79,10 +80,9 @@ export default class Tetris extends Component {
     return true;
   };
 
-  updateBoxes = () => {
-    //********************** BURASI TEKRAR YAZILACAK BUG VAR********************* */
-
+  touchCheck = () => {
     this.activeBoxes.map((box, index, boxes) => {
+      // Kutular indimi kontrolü
       if (box >= this.lastRowStart || this.landedBoxes.includes(box + this.boxCountInOneRow)) {
         boxes.map(xbox => {
           this.landedBoxes.push(xbox);
@@ -95,12 +95,14 @@ export default class Tetris extends Component {
         // İnen kutular tepeyi buldumu kontrol
         if (this.landedBoxes[i] <= this.firsRowFinish) {
           clearInterval(this.gameLoop);
-          // this.gameOver = true;
+          this.gameOver = true;
           return;
         }
       }
     });
-    //************************************************************************* */
+  };
+
+  update = () => {
     this.activeBoxes.map((box, index, boxes) => {
       this.activeBoxes[index] = box + this.boxCountInOneRow + this.direction; // şekil kümesini bir alt satıra geçirme
       // this.activeBoxes[index] = box + this.direction; // şekil kümesini bir alt satıra geçirme TESTLİK
