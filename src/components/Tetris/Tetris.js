@@ -14,9 +14,9 @@ export default class Tetris extends Component {
     this.boxWidth = 30;
     this.boxCount = Math.floor((this.mapWidth * this.mapHeight) / Math.pow(this.boxWidth, 2)); //Kaç adet kutu olacağını hesaplıyoruz.
 
-    this.nextRow = this.mapWidth / this.boxWidth; // Bir kutunun alt satıra inebilmesi için kaçıncı index numaralı kutuya denk geldiğini tutuyoruz.
+    this.boxCountInOneRow = this.mapWidth / this.boxWidth; // Bir kutunun alt satıra inebilmesi için kaçıncı index numaralı kutuya denk geldiğini tutuyoruz.
     this.lastRowStart = this.boxCount - this.mapWidth / this.boxWidth; // Son satırın başlangıç kutusu
-    this.firsRowFinish = this.nextRow; // İlk satırın son kutusu
+    this.firsRowFinish = this.boxCountInOneRow; // İlk satırın son kutusu
     this.models = [];
     this.activeBoxes = [];
 
@@ -34,11 +34,11 @@ export default class Tetris extends Component {
     // User inputs.
     switch (e.key) {
       case "ArrowRight":
-        this.direction = 1;
+        if (this.wallCheck("ArrowRight")) this.direction = 1;
         break;
 
       case "ArrowLeft":
-        this.direction = -1;
+        if (this.wallCheck("ArrowLeft")) this.direction = -1;
         break;
 
       default:
@@ -57,45 +57,53 @@ export default class Tetris extends Component {
   generateActiveBoxes = () => {
     // Modellerin oluşturulup Aktif kutulara eklenmesi
     const { model } = this.models[Math.floor(Math.random() * this.models.length)]; //Random model seçimi
+    // const { model } = this.models[4]; //Random model seçimi TESTLİK
     const randomStartBoxIntex = Math.floor((Math.random() * this.mapWidth) / this.boxWidth / 2); //Yukarıdan inecek kutuların başlangıç yerini random yapar.
     for (var i = 0; i < 3; i++) {
       if (model[i] === 1) this.activeBoxes.push(randomStartBoxIntex + i);
     }
     for (var j = 3; j < 6; j++) {
-      if (model[j] === 1) this.activeBoxes.push(randomStartBoxIntex + this.nextRow + j - 3);
+      if (model[j] === 1) this.activeBoxes.push(randomStartBoxIntex + this.boxCountInOneRow + j - 3);
     }
 
     for (var k = 6; k < j + 9; k++) {
-      if (model[k] === 1) this.activeBoxes.push(randomStartBoxIntex + this.nextRow * 2 + k - 6);
+      if (model[k] === 1) this.activeBoxes.push(randomStartBoxIntex + this.boxCountInOneRow * 2 + k - 6);
     }
   };
 
-  checkBoxesPosition = () => {};
+  wallCheck = arrow => {
+    for (let i = 0; i < this.activeBoxes.length; i++) {
+      if (this.activeBoxes[i] % this.boxCountInOneRow === 0 && arrow === "ArrowLeft") return false;
+      if ((this.activeBoxes[i] + 1) % this.boxCountInOneRow === 0 && arrow === "ArrowRight") return false;
+    }
+    return true;
+  };
 
   updateBoxes = () => {
     //********************** BURASI TEKRAR YAZILACAK BUG VAR********************* */
 
     this.activeBoxes.map((box, index, boxes) => {
-      //İnenleri tespit ediyoruz
-      if (box >= this.lastRowStart || this.landedBoxes.includes(box + this.nextRow)) {
+      if (box >= this.lastRowStart || this.landedBoxes.includes(box + this.boxCountInOneRow)) {
         boxes.map(xbox => {
           this.landedBoxes.push(xbox);
         });
         this.activeBoxes = []; //generateActiveBoxes'ın tekrar çalışmasını sağlar.
         return;
       }
+
       for (let i = 0; i < this.landedBoxes.length; i++) {
         // İnen kutular tepeyi buldumu kontrol
         if (this.landedBoxes[i] <= this.firsRowFinish) {
           clearInterval(this.gameLoop);
-          this.gameOver = true;
+          // this.gameOver = true;
           return;
         }
       }
     });
     //************************************************************************* */
     this.activeBoxes.map((box, index, boxes) => {
-      this.activeBoxes[index] = box + this.nextRow + this.direction; // şekil kümesini bir alt satıra geçirme
+      this.activeBoxes[index] = box + this.boxCountInOneRow + this.direction; // şekil kümesini bir alt satıra geçirme
+      // this.activeBoxes[index] = box + this.direction; // şekil kümesini bir alt satıra geçirme TESTLİK
     });
     this.direction = 0;
     let boxes = [];
