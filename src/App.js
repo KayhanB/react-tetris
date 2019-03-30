@@ -7,7 +7,7 @@ class App extends Component {
     return (
       <div className="App">
         <a href="https://github.com/KayhanB/react-tetris" target="_blank" style={{ position: "fixed", top: 10, right: 10 }}> 
-          <img style={{ position: "fixed", top: 10, right: 10 }} src="/img/GitHub-Mark-32px.png" />
+          <img  src="/img/GitHub-Mark-32px.png" />
         </a>
         <Game />
       </div>
