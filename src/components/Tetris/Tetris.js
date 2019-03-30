@@ -7,11 +7,11 @@ import Models from "./Models";
 export default class Tetris extends Component {
   constructor() {
     super();
-    this.FPS = 1000 / 5;
+    this.FPS = 1000 / 8;
     this.mapWidth = 300;
     this.mapHeight = 600;
-    this.boxHeight = 30;
-    this.boxWidth = 30;
+    this.boxHeight = 20;
+    this.boxWidth = 20;
     this.boxCount = Math.floor((this.mapWidth * this.mapHeight) / Math.pow(this.boxWidth, 2)); //Kaç adet kutu olacağını hesaplıyoruz.
 
     this.boxCountInOneRow = this.mapWidth / this.boxWidth; // Bir kutunun alt satıra inebilmesi için kaçıncı index numaralı kutuya denk geldiğini tutuyoruz.
@@ -59,7 +59,7 @@ export default class Tetris extends Component {
     // Modellerin oluşturulup Aktif kutulara eklenmesi
     const { model } = this.models[Math.floor(Math.random() * this.models.length)]; //Random model seçimi
     // const { model } = this.models[4]; //Random model seçimi TESTLİK
-    const randomStartBoxIntex = Math.floor((Math.random() * this.mapWidth + 3) / this.boxWidth / 2); //Yukarıdan inecek kutuların başlangıç yerini random yapar.
+    const randomStartBoxIntex = Math.floor((Math.random() * this.mapWidth) / this.boxWidth / 2); //Yukarıdan inecek kutuların başlangıç yerini random yapar.
     for (var i = 0; i < 3; i++) {
       if (model[i] === 1) this.activeBoxes.push(randomStartBoxIntex + i);
     }
@@ -85,12 +85,13 @@ export default class Tetris extends Component {
   };
 
   touchCheck = () => {
-    this.activeBoxes.map((box, index, boxes) => {
+    for (let i = 0; i < this.activeBoxes.length; i++) {
+      let box = this.activeBoxes[i];
       // Kutular indimi ve başka bir kutunun üzerine indimi kontrolü
       if (box >= this.lastRowStart || this.landedBoxes.includes(box + this.boxCountInOneRow)) {
-        boxes.map(xbox => {
-          this.landedBoxes.push(xbox);
-        });
+        for (let i = 0; i < this.activeBoxes.length; i++) {
+          this.landedBoxes.push(this.activeBoxes[i]);
+        }
         this.activeBoxes = []; //generateActiveBoxes'ın tekrar çalışmasını sağlar.
         return;
       }
@@ -103,7 +104,7 @@ export default class Tetris extends Component {
           return;
         }
       }
-    });
+    }
   };
 
   update = () => {
