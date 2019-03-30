@@ -132,6 +132,9 @@ export default class Tetris extends Component {
       <>
         {!this.gameOver ? (
           <StyledMap height={this.mapHeight} width={this.mapWidth}>
+            <a href="https://github.com/KayhanB/react-tetris" target="_blank" style={{ position: "fixed", top: 10, right: 10 }}>
+              <img src="/img/GitHub-Mark-32px.png" />
+            </a>
             {this.boxes.map(box => box)}
           </StyledMap>
         ) : (
