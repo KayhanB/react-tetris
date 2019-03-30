@@ -108,10 +108,12 @@ export default class Tetris extends Component {
   };
 
   update = () => {
-    this.activeBoxes.map((box, index, boxes) => {
-      this.activeBoxes[index] = box + this.boxCountInOneRow + this.direction; // şekil kümesini bir alt satıra geçirme
-      // this.activeBoxes[index] = box + this.direction; // şekil kümesini bir alt satıra geçirme TESTLİK
-    });
+    // this.activeBoxes.map((box, index, boxes) => {
+    //   this.activeBoxes[index] = box + this.boxCountInOneRow + this.direction; // şekil kümesini bir alt satıra geçirme
+    // });
+    for (let i = 0; i < this.activeBoxes.length; i++) {
+      this.activeBoxes[i] = this.activeBoxes[i] + this.boxCountInOneRow + this.direction;
+    }
     this.direction = 0;
     let boxes = [];
 
