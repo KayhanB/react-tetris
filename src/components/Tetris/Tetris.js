@@ -34,11 +34,11 @@ export default class Tetris extends Component {
     // User inputs.
     switch (e.key) {
       case "ArrowRight":
-        if (this.wallCheck("ArrowRight")) this.direction = 1;
+        if (this.obstacle("ArrowRight")) this.direction = 1;
         break;
 
       case "ArrowLeft":
-        if (this.wallCheck("ArrowLeft")) this.direction = -1;
+        if (this.obstacle("ArrowLeft")) this.direction = -1;
         break;
 
       default:
@@ -59,7 +59,7 @@ export default class Tetris extends Component {
     // Modellerin oluşturulup Aktif kutulara eklenmesi
     const { model } = this.models[Math.floor(Math.random() * this.models.length)]; //Random model seçimi
     // const { model } = this.models[4]; //Random model seçimi TESTLİK
-    const randomStartBoxIntex = Math.floor((Math.random() * this.mapWidth) / this.boxWidth / 2); //Yukarıdan inecek kutuların başlangıç yerini random yapar.
+    const randomStartBoxIntex = Math.floor((Math.random() * this.mapWidth + 3) / this.boxWidth / 2); //Yukarıdan inecek kutuların başlangıç yerini random yapar.
     for (var i = 0; i < 3; i++) {
       if (model[i] === 1) this.activeBoxes.push(randomStartBoxIntex + i);
     }
@@ -72,17 +72,20 @@ export default class Tetris extends Component {
     }
   };
 
-  wallCheck = arrow => {
+  obstacle = arrow => {
     for (let i = 0; i < this.activeBoxes.length; i++) {
       if (this.activeBoxes[i] % this.boxCountInOneRow === 0 && arrow === "ArrowLeft") return false;
       if ((this.activeBoxes[i] + 1) % this.boxCountInOneRow === 0 && arrow === "ArrowRight") return false;
+      if (this.landedBoxes.includes(this.activeBoxes[i] + 1)) return false;
+      if (this.landedBoxes.includes(this.activeBoxes[i] - 1)) return false;
+      this.touchCheck();
     }
     return true;
   };
 
   touchCheck = () => {
     this.activeBoxes.map((box, index, boxes) => {
-      // Kutular indimi kontrolü
+      // Kutular indimi ve başka bir kutunun üzerine indimi kontrolü
       if (box >= this.lastRowStart || this.landedBoxes.includes(box + this.boxCountInOneRow)) {
         boxes.map(xbox => {
           this.landedBoxes.push(xbox);
