@@ -8,8 +8,8 @@ export default class Tetris extends Component {
   constructor() {
     super();
     this.FPS = 1000 / 8;
-    this.mapWidth = 300;
-    this.mapHeight = 600;
+    this.mapWidth = 260;
+    this.mapHeight = 500;
     this.boxHeight = 20;
     this.boxWidth = 20;
     this.boxCount = Math.floor((this.mapWidth * this.mapHeight) / Math.pow(this.boxWidth, 2)); //Kaç adet kutu olacağını hesaplıyoruz.
@@ -47,6 +47,7 @@ export default class Tetris extends Component {
   };
   loop = () => {
     // Oyun döngüsü
+    console.log("object");
     this.gameLoop = setInterval(() => {
       if (this.activeBoxes.length === 0) this.generateActiveBoxes();
       this.touchCheck();
@@ -142,7 +143,7 @@ export default class Tetris extends Component {
             <a href="https://github.com/KayhanB/react-tetris" target="_blank" style={{ position: "fixed", top: 10, right: 10 }}>
               <img src="/img/GitHub-Mark-32px.png" />
             </a>
-            {this.boxes.map(box => box)}
+            {this.boxes}
           </StyledMap>
         ) : (
           <GameOver restart={this.restart} />
