@@ -18,7 +18,9 @@ export default class Tetris extends Component {
     this.lastRowStart = this.boxCount - this.mapWidth / this.boxWidth; // Son satırın başlangıç kutusu
     this.firsRowFinish = this.boxCountInOneRow; // İlk satırın son kutusu
     this.models = [];
+    this.activeModel = [];
     this.activeBoxes = [];
+    this.randomStartBoxIntex = null;
 
     this.boxes = []; //Render için
     this.landedBoxes = []; //İnen kutular
@@ -32,7 +34,7 @@ export default class Tetris extends Component {
   };
   handleKeyDown = e => {
     // User inputs.
-    switch (e.key) {
+    switch (e.code) {
       case "ArrowRight":
         if (this.obstacle("ArrowRight")) this.direction = 1;
         break;
@@ -40,7 +42,11 @@ export default class Tetris extends Component {
       case "ArrowLeft":
         if (this.obstacle("ArrowLeft")) this.direction = -1;
         break;
-
+      case "Space":
+        if (this.obstacle("Space")) {
+          this.rotateModel();
+          this.transformActiveBoxes();
+        }
       default:
         break;
     }
@@ -59,29 +65,63 @@ export default class Tetris extends Component {
   generateActiveBoxes = () => {
     // Modellerin oluşturulup Aktif kutulara eklenmesi
     const { model } = this.models[Math.floor(Math.random() * this.models.length)]; //Random model seçimi
-    // const { model } = this.models[4]; //Random model seçimi TESTLİK
-    const randomStartBoxIntex = Math.floor((Math.random() * this.mapWidth) / this.boxWidth / 2); //Yukarıdan inecek kutuların başlangıç yerini random yapar.
+    let formattedModel = [];
+    model.map(row => {
+      formattedModel = formattedModel.concat(row);
+    });
+    this.activeModel = model;
+
+    let randomStartBoxIntex = Math.floor((Math.random() * this.mapWidth) / this.boxWidth / 2); //Yukarıdan inecek kutuların başlangıç yerini random yapar.
+
     for (var i = 0; i < 3; i++) {
-      if (model[i] === 1) this.activeBoxes.push(randomStartBoxIntex + i);
+      if (formattedModel[i] === 1) this.activeBoxes.push(randomStartBoxIntex + i);
     }
     for (var j = 3; j < 6; j++) {
-      if (model[j] === 1) this.activeBoxes.push(randomStartBoxIntex + this.boxCountInOneRow + j - 3);
+      if (formattedModel[j] === 1) this.activeBoxes.push(randomStartBoxIntex + this.boxCountInOneRow + j - 3);
     }
 
     for (var k = 6; k < j + 9; k++) {
-      if (model[k] === 1) this.activeBoxes.push(randomStartBoxIntex + this.boxCountInOneRow * 2 + k - 6);
+      if (formattedModel[k] === 1) this.activeBoxes.push(randomStartBoxIntex + this.boxCountInOneRow * 2 + k - 6);
+    }
+  };
+  transformActiveBoxes = () => {
+    let activeBoxes = this.activeBoxes;
+    this.activeBoxes = [];
+    let formattedModel = [];
+    this.activeModel.map(row => {
+      formattedModel = formattedModel.concat(row);
+    });
+
+    let firsActiveBoxIndex = activeBoxes[0];
+    let n = 1;
+    this.activeModel[0].map((x, i) => {
+      if (x === 1 && i == 1) n = i - 1;
+    });
+    for (var i = 0; i < 3; i++) {
+      if (formattedModel[i] === 1) this.activeBoxes.push(firsActiveBoxIndex - n + i);
+    }
+    for (var j = 3; j < 6; j++) {
+      if (formattedModel[j] === 1) this.activeBoxes.push(firsActiveBoxIndex - n + this.boxCountInOneRow + j - 3);
+    }
+    for (var k = 6; k < j + 9; k++) {
+      if (formattedModel[k] === 1) this.activeBoxes.push(firsActiveBoxIndex - n + this.boxCountInOneRow * 2 + k - 6);
     }
   };
 
-  obstacle = arrow => {
+  obstacle = code => {
     for (let i = 0; i < this.activeBoxes.length; i++) {
-      if (this.activeBoxes[i] % this.boxCountInOneRow === 0 && arrow === "ArrowLeft") return false;
-      if ((this.activeBoxes[i] + 1) % this.boxCountInOneRow === 0 && arrow === "ArrowRight") return false;
+      if (this.activeBoxes[i] % this.boxCountInOneRow === 0 && code === "ArrowLeft") return false;
+      if ((this.activeBoxes[i] + 1) % this.boxCountInOneRow === 0 && code === "ArrowRight") return false;
+
       if (this.landedBoxes.includes(this.activeBoxes[i] + 1)) return false;
       if (this.landedBoxes.includes(this.activeBoxes[i] - 1)) return false;
       if (this.landedBoxes.includes(this.activeBoxes[i] + this.boxCountInOneRow - 1)) return false;
       if (this.landedBoxes.includes(this.activeBoxes[i] + this.boxCountInOneRow + 1)) return false;
+
+      if (this.activeBoxes[i] % this.boxCountInOneRow === 0 && code === "Space") return false;
+      if ((this.activeBoxes[i] + 1) % this.boxCountInOneRow === 0 && code === "Space") return false;
     }
+    console.log(code);
     return true;
   };
 
@@ -108,10 +148,20 @@ export default class Tetris extends Component {
     }
   };
 
+  rotateModel = () => {
+    let activeModel = this.activeModel;
+    var origModel = activeModel.slice();
+    for (var i = 0; i < activeModel.length; i++) {
+      var row = activeModel[i].map(function(x, j) {
+        var k = activeModel.length - 1 - j;
+        return origModel[k][i];
+      });
+      activeModel[i] = row;
+    }
+    this.activeModel = activeModel;
+  };
+
   update = () => {
-    // this.activeBoxes.map((box, index, boxes) => {
-    //   this.activeBoxes[index] = box + this.boxCountInOneRow + this.direction; // şekil kümesini bir alt satıra geçirme
-    // });
     for (let i = 0; i < this.activeBoxes.length; i++) {
       this.activeBoxes[i] = this.activeBoxes[i] + this.boxCountInOneRow + this.direction;
     }
